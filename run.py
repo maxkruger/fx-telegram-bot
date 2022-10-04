@@ -55,52 +55,58 @@ def ParseSignal(signal: str) -> dict:
 
     trade = {}
 
+    signal = signal.splitlines()
+    signal = [line.rstrip() for line in signal]
+
+    order = signal[0].split(' - ')[1].lower()
     # determines the order type of the trade
-    if('Buy Limit'.lower() in signal[0].lower()):
+    if('Buy Limit'.lower() in order):
         trade['OrderType'] = 'Buy Limit'
 
-    elif('Sell Limit'.lower() in signal[0].lower()):
+    elif('Sell Limit'.lower() in order):
         trade['OrderType'] = 'Sell Limit'
 
-    elif('Buy Stop'.lower() in signal[0].lower()):
+    elif('Buy Stop'.lower() in order):
         trade['OrderType'] = 'Buy Stop'
 
-    elif('Sell Stop'.lower() in signal[0].lower()):
+    elif('Sell Stop'.lower() in order):
         trade['OrderType'] = 'Sell Stop'
 
-    elif('Buy'.lower() in signal[0].lower()):
+    elif('Buy'.lower() in order):
         trade['OrderType'] = 'Buy'
-    
-    elif('Sell'.lower() in signal[0].lower()):
+        
+    elif('Sell'.lower() in order):
         trade['OrderType'] = 'Sell'
-    
-    # returns an empty dictionary if an invalid order type was given
+        
+        # returns an empty dictionary if an invalid order type was given
     else:
         return {}
 
-    # extracts symbol from trade signal
-    trade['Symbol'] = (signal[0].split())[-1].upper()
+    symbol = signal[0].split(' - ')[0].upper()
+    totalLines = len(signal)
+    stopPosition = totalLines -1
+    stopLoss = signal[stopPosition].split()[-1]
+
+    trade['Symbol'] = symbol
+    #TP1
+    trade['TP'] = [float((signal[2].split())[-1])]
+    #TP2
+    if(len(signal) == 5):
+        trade['TP'].append(float(signal[3].split()[-1]))
+    #TP3
+    if(len(signal) == 6):
+        trade['TP'].append(float(signal[3].split()[-1]))
+        trade['TP'].append(float(signal[4].split()[-1]))
+
+    trade['Entry'] = float((signal[1].split())[-1])
+    trade['StopLoss'] = float((signal[2].split())[-1])
+    trade['RiskFactor'] = RISK_FACTOR
+
+    
     
     # checks if the symbol is valid, if not, returns an empty dictionary
     if(trade['Symbol'] not in SYMBOLS):
-        return {}
-    
-    # checks wheter or not to convert entry to float because of market exectution option ("NOW")
-    if(trade['OrderType'] == 'Buy' or trade['OrderType'] == 'Sell'):
-        trade['Entry'] = (signal[1].split())[-1]
-    
-    else:
-        trade['Entry'] = float((signal[1].split())[-1])
-    
-    trade['StopLoss'] = float((signal[2].split())[-1])
-    trade['TP'] = [float((signal[3].split())[-1])]
-
-    # checks if there's a fourth line and parses it for TP2
-    if(len(signal) > 4):
-        trade['TP'].append(float(signal[4].split()[-1]))
-    
-    # adds risk factor to trade
-    trade['RiskFactor'] = RISK_FACTOR
+        return {}    
 
     return trade
 
@@ -530,8 +536,7 @@ def main() -> None:
     dp.add_handler(conv_handler)
 
     # message handler for all messages that are not included in conversation handler
-    #dp.add_handler(MessageHandler(Filters.text, unknown_command))
-    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, PlaceTrade))
+    dp.add_handler(MessageHandler(Filters.text, unknown_command))
 
     # log all errors
     dp.add_error_handler(error)
