@@ -55,9 +55,6 @@ def ParseSignal(signal: str) -> dict:
 
     trade = {}
 
-    signal = signal.splitlines()
-    signal = [line.rstrip() for line in signal]
-
     order = signal[0].split(' - ')[1].lower()
     # determines the order type of the trade
     if('Buy Limit'.lower() in order):
