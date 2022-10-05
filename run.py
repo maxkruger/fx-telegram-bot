@@ -96,7 +96,7 @@ def ParseSignal(signal: str) -> dict:
         trade['TP'].append(float(signal[4].split()[-1]))
 
     trade['Entry'] = float((signal[1].split())[-1])
-    trade['StopLoss'] = float((stopLoss)
+    trade['StopLoss'] = float(stopLoss)
     trade['RiskFactor'] = RISK_FACTOR
 
     
