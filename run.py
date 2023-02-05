@@ -55,7 +55,7 @@ def ParseSignal(signal: str) -> dict:
 
     trade = {}
 
-    order = signal[0].split(' - ')[1].lower()
+    order = signal[2].split(' ')[0].lower()
     # determines the order type of the trade
     if('Buy Limit'.lower() in order):
         trade['OrderType'] = 'Buy Limit'
@@ -79,23 +79,23 @@ def ParseSignal(signal: str) -> dict:
     else:
         return {}
 
-    symbol = signal[0].split(' - ')[0].upper()
+    symbol = signal[2].split(' ')[1].upper()
     totalLines = len(signal)
     stopPosition = totalLines -1
     stopLoss = signal[stopPosition].split()[-1]
 
     trade['Symbol'] = symbol
     #TP1
-    trade['TP'] = [float((signal[2].split())[-1])]
+    trade['TP'] = [float((signal[4].split())[-1])]
     #TP2
-    if(len(signal) == 5):
-        trade['TP'].append(float(signal[3].split()[-1]))
-    #TP3
     if(len(signal) == 6):
-        trade['TP'].append(float(signal[3].split()[-1]))
-        trade['TP'].append(float(signal[4].split()[-1]))
+        trade['TP'].append(float(signal[5].split()[-1]))
+    #TP3
+    if(len(signal) == 7):
+        trade['TP'].append(float(signal[6].split()[-1]))
+        #trade['TP'].append(float(signal[4].split()[-1]))
 
-    trade['Entry'] = float((signal[1].split())[-1])
+    trade['Entry'] = float((signal[2].split())[-1])
     trade['StopLoss'] = float(stopLoss)
     trade['RiskFactor'] = RISK_FACTOR
 
